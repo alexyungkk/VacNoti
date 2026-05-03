@@ -21,6 +21,9 @@ VacNoti is a web-based application designed for hotel operations. It allows supe
    `pip install -r requirements.txt`
 4. **Run the Application:**
    `streamlit run VacNoti.py`
+5. **Demo username and Password**
+   Username:admin
+   Password:123
 
 ### 📋 Current Features
 
