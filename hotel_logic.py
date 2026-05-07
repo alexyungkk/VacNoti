@@ -61,6 +61,7 @@ def update_json(new_data, style, filename='data.json'):
         file_data["type"].insert(0, style)
         # Move the cursor to the beginning of the file
         file.seek(0)
+        file.truncate()
         
         # Write the updated data back to the file
         json.dump(file_data, file, indent=4)
