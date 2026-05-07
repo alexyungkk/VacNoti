@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 
 from openpyxl import load_workbook
 
@@ -48,6 +49,22 @@ def hello():
 
 def sentSuccess(text):
     return f"sentSuccess: {text}"
+
+# adding json data
+def update_json(new_data, style, filename='data.json'):
+    with open(filename, 'r+') as file:
+        # Load existing data into a dictionary
+        file_data = json.load(file)
+        
+        # Append new data to the 'details' list
+        file_data["message"].insert(0, new_data)
+        file_data["type"].insert(0, style)
+        # Move the cursor to the beginning of the file
+        file.seek(0)
+        
+        # Write the updated data back to the file
+        json.dump(file_data, file, indent=4)
+    
 
 
 

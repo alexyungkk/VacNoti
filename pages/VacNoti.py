@@ -1,8 +1,10 @@
 import streamlit as st
 import hotel_logic
 import datetime
+import json
+import os
+from openpyxl import Workbook
 from twilio.rest import Client
-
 
 if not st.session_state.get("logged_in", False):
     st.error("Please login first!")
@@ -24,8 +26,9 @@ with open("room_schedule_template.xlsx", "rb") as file:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-schedule = st.file_uploader("Please upload today schedule", type=".xlsx", accept_multiple_files=False, 
-                            max_upload_size=10)
+persistent_file = "persistent_schedule.xlsx"
+schedule = st.file_uploader("Please upload today schedule", type=".xlsx", 
+                            accept_multiple_files=False, max_upload_size=10)
 
 currTime = datetime.datetime.now().strftime("%D, %H:%M:%S")
 
@@ -33,12 +36,32 @@ currTime = datetime.datetime.now().strftime("%D, %H:%M:%S")
 if "msg_logger" not in st.session_state:
     # creating an empty logger list
     st.session_state.msg_logger = []
+    
 # function to append new messages to msg_logger
 def add_message(text, msg_type="info"):
     st.session_state.msg_logger.insert(0, {"text": text, "type": msg_type})
 
-# checking if schedule has been uploaded
 if schedule is not None:
+    with open (persistent_file, "wb") as f:
+        f.write(schedule.getbuffer())
+    st.success(f"New schedule saved locally as {persistent_file}")
+    schedule = persistent_file
+    run = True
+elif os.path.exists(persistent_file):
+    schedule = persistent_file
+    st.info("Using previously saved schedule.")
+    run = True
+else:
+    schedule = None
+    run = False
+# checking if schedule has been uploaded
+if run:   
+    # initialize a json data
+    if not os.path.exists("simple.json"):
+        initial_data = {"message": [], "type": []}
+        with open("simple.json", "w") as f:
+            json.dump(initial_data, f)
+
     # hotel_logic.schedule_rn(schedule)
     # using form function
     with st.form("notification"):
@@ -70,19 +93,53 @@ if schedule is not None:
                                         #     from_=hotel_logic.twilio_number,
                                         #     body= f"From supervisor. Hi, room {room_number} is vacant now, thank you",
                                         #     to=ra_number
-                                        # )                                      
+                                        # )
+                                        success_mess = f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!"
+                                        type_mess = "success"
+                                        hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
                                         add_message(f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!", "success")                                       
                         else:
+                            error_mess = f"{currTime} Room {room_number} is assigned to more than one room attendants."
+                            type_mess = "error"
+                            hotel_logic.update_json(error_mess, type_mess, "simple.json")                        
                             add_message(f"{currTime} Room {room_number} is assigned to more than one room attendants.", "error")
                     else:
+                        error_mess = f"{currTime} Room {room_number} is not assigned yet."
+                        type_mess = "error"
+                        hotel_logic.update_json(error_mess, type_mess, "simple.json")                         
                         add_message(f"{currTime} Room {room_number} is not assigned yet.", "error")                       
                 else:
                     # error if input invalid room number
+                    error_mess = f"{currTime} Please input a valid room number."
+                    type_mess = "error"
+                    hotel_logic.update_json(error_mess, type_mess, "simple.json")    
                     add_message(f"{currTime} Please input a valid room number.", "error")
 
             # error if input other than integer
             except ValueError:
+                error_mess = f"{currTime} Please input a valid room number."
+                type_mess = "error"
+                hotel_logic.update_json(error_mess, type_mess, "simple.json")    
                 add_message(f"{currTime} Please input a valid room number.", "error")
+            
+# Create a button to clear the JSON data
+clear = st.button("Clear Message History")
+if clear:
+    # Define the empty template
+    empty_message = {
+        "message": [],
+        "type": []
+    }
+    
+    # Overwrite the file with the empty template
+    with open("simple.json", "w") as f:
+        json.dump(empty_message, f)
+    
+    # Clear the session state logger as well so the UI updates immediately
+    st.session_state.msg_logger = []
+    
+    st.success("History cleared!")
+    st.rerun() # Refresh the app to show the empty state
 
 
 st.divider()
@@ -94,6 +151,21 @@ for msg in st.session_state.msg_logger:
     elif msg["type"] == "error":
         st.error(msg["text"])
 
+st.subheader("JSON Data")
+
+with open("simple.json", "r") as f:
+    data = json.load(f)
+    
+    # Loop through the length of the message list
+    for i in range(len(data["message"])):
+        msg_text = data["message"][i]
+        msg_type = data["type"][i]
+        
+        # Display based on the type stored at the same index
+        if msg_type == "success":
+            st.success(msg_text)
+        elif msg_type == "error":
+            st.error(msg_text)
 
 
 

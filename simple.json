@@ -1,0 +1,14 @@
+{
+    "message": [
+        "05/07/26, 15:42:47 Notification sent to RA2 456 for room 1504!",
+        "05/07/26, 15:42:34 Room 1421 is assigned to more than one room attendants.",
+        "05/07/26, 15:42:17 Notification sent to RA2 456 for room 1504!",
+        "05/07/26, 15:42:06 Room 1421 is assigned to more than one room attendants."
+    ],
+    "type": [
+        "success",
+        "error",
+        "success",
+        "error"
+    ]
+}
