@@ -1,10 +1,6 @@
 import streamlit as st
 
-users = {
-    "admin": "123",
-    "abc": "abc123",
-    "xyz": "xyz123"
-}
+
 
 # Page configuration
 st.set_page_config(page_title="Login Page", layout="centered", initial_sidebar_state="collapsed")
@@ -26,7 +22,7 @@ with col2:  # place everything in the center column
         if login1:
             if not username or not password:
                 st.warning("⚠️ Please fill in both username and password.")
-            elif username in users and users[username] == password:
+            elif username in st.secrets["users"] and password == st.secrets["users"][username]:
                 st.session_state.logged_in = True
                 st.switch_page("pages/VacNoti.py")
                 

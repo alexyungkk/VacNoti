@@ -3,11 +3,9 @@ import json
 
 from openpyxl import load_workbook
 
-
-account_sid = "YOUR_SID_HERE"
-auth_token = "YOUR_TOKEN_HERE"
+# account_sid = "YOUR_SID_HERE"
+# auth_token = "YOUR_TOKEN_HERE"
 twilio_number = "+19027018815"
-my_phone_number = "+17826410444"
 
 # roomSchedule = pd.ExcelFile('pages/room_schedule_template.xlsx')
 # df = roomSchedule.parse('roomNum')
@@ -54,16 +52,15 @@ def sentSuccess(text):
 def update_json(new_data, style, filename='data.json'):
     with open(filename, 'r+') as file:
         # Load existing data into a dictionary
-        file_data = json.load(file)
-        
+        file_data = json.load(file)        
         # Append new data to the 'details' list
         file_data["message"].insert(0, new_data)
         file_data["type"].insert(0, style)
-        # Move the cursor to the beginning of the file
+        # Move the cursor to the beginning of the original file
         file.seek(0)
-        file.truncate()
-        
-        # Write the updated data back to the file
+        # delete all content after cursor
+        file.truncate()       
+        # Write the updated data back to the original file
         json.dump(file_data, file, indent=4)
     
 
