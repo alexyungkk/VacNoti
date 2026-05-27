@@ -21,6 +21,7 @@ st.write(hotel_logic.hello())
 st.title("🏨 Room Dispatcher")
 st.write("Welcome, Supervisor. Please use the template below")
 
+
 # Tell Python to look inside the pages folder
 with open("room_schedule_template.xlsx", "rb") as file:
     btn = st.download_button(
@@ -29,6 +30,7 @@ with open("room_schedule_template.xlsx", "rb") as file:
         file_name="room_schedule_template.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 persistent_file = "persistent_schedule.xlsx"
 schedule = st.file_uploader("Please upload today schedule", type=".xlsx", 
@@ -45,6 +47,8 @@ if "msg_logger" not in st.session_state:
 # function to append new messages to msg_logger
 def add_message(text, msg_type="info"):
     st.session_state.msg_logger.insert(0, {"text": text, "type": msg_type})
+
+
 
 if schedule is not None:
     with open (persistent_file, "wb") as f:
@@ -74,7 +78,8 @@ if run:
             json.dump(initial_data, f)
 
     # hotel_logic.schedule_rn(schedule)
-    mess_type = st.radio("Message type", ["Check out", "Stayover"], horizontal=True)
+    mess_type = st.radio("Service Type", ["Check out", "Stayover"], horizontal=True) 
+    sms = st.checkbox("SMS send?")
     # st.info(mess_type)
     # using form function
     with st.form("notification"):
@@ -100,33 +105,53 @@ if run:
                                         client = Client(account_sid, auth_token)
                                         if mess_type == "Check out":
                                             ##### SMS senting part
-                                            try: 
-                                                # message = client.messages.create(
-                                                #     from_=hotel_logic.twilio_number,
-                                                #     body= f"From supervisor. Hi, room {room_number} is vacant now, thank you",
-                                                #     to=ra_number
-                                                # )
-                                                success_mess = f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!"
-                                                type_mess = "success"
-                                                hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
-                                                add_message(f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!", "success")   
-                                            except Exception as e:
-                                                st.error(f"Failed to send SMS: {e}")
-                                            
+                                            if sms:
+                                                try: 
+                                                    message = client.messages.create(
+                                                        from_=hotel_logic.twilio_number,
+                                                        body= f"From supervisor. Hi, room {room_number} is vacant now, thank you",
+                                                        to=ra_number
+                                                    )
+                                                    success_mess = f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!"
+                                                    type_mess = "success"
+                                                    hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
+                                                    add_message(f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!", "success")   
+                                                except Exception as e:
+                                                    st.error(f"Failed to send SMS: {e}")
+                                            else:
+                                                try: 
+                                                    success_mess = f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!"
+                                                    type_mess = "success"
+                                                    hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
+                                                    add_message(f"{currTime} Notification sent to {ra_name} {ra_number} for room {room_number}!", "success")   
+                                                except Exception as e:
+                                                    st.error(f"Failed to send SMS: {e}")
+                                          
                                         elif mess_type == "Stayover":
                                             ###### SMS senting part
-                                            try: 
-                                                # message = client.messages.create(
-                                                #     from_=hotel_logic.twilio_number,
-                                                #     body= f"From supervisor. Hi, room {room_number} needs service, thank you",
-                                                #     to=ra_number
-                                                # )
-                                                success_mess = f"{currTime} STAYOVER notification  sent to {ra_name} {ra_number} for room {room_number}!"
-                                                type_mess = "success"
-                                                hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
-                                                add_message(f"{currTime} STAYOVER notification sent to {ra_name} {ra_number} for room {room_number}!", "success")    
-                                            except Exception as e:
-                                                st.error(f"Failed to send SMS: {e}")                               
+                                            if sms:
+                                                try: 
+                                                    message = client.messages.create(
+                                                        from_=hotel_logic.twilio_number,
+                                                        body= f"From supervisor. Hi, room {room_number} needs service, thank you",
+                                                        to=ra_number
+                                                    )
+                                                    success_mess = f"{currTime} STAYOVER notification  sent to {ra_name} {ra_number} for room {room_number}!"
+                                                    type_mess = "success"
+                                                    hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
+                                                    add_message(f"{currTime} STAYOVER notification sent to {ra_name} {ra_number} for room {room_number}!", "success")    
+                                                except Exception as e:
+                                                    st.error(f"Failed to send SMS: {e}")
+                                            else:
+                                                try: 
+
+                                                        success_mess = f"{currTime} STAYOVER notification  sent to {ra_name} {ra_number} for room {room_number}!"
+                                                        type_mess = "success"
+                                                        hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
+                                                        add_message(f"{currTime} STAYOVER notification sent to {ra_name} {ra_number} for room {room_number}!", "success")    
+                                                except Exception as e:
+                                                    st.error(f"Failed to send SMS: {e}")
+
                         else:
                             error_mess = f"{currTime} Room {room_number} is assigned to more than one room attendants."
                             type_mess = "error"
