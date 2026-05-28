@@ -13,14 +13,14 @@ VacNoti is a web-based application designed for hotel operations. It allows supe
 ### 🛠️ How to Setup & Run
 
 1. **Clone the repository:**
-   `git clone https://github.com/alexyunkk/VanNoti.git`
+   `git clone https://github.com/alexyungkk/VacNoti`
 2. **Create and Activate Virtual Environment:**
    `py -m venv .venv`
    `.venv\Scripts\activate`
 3. **Install Dependencies:**
    `pip install -r requirements.txt`
 4. **Run the Application:**
-   `streamlit run VacNoti.py`
+   `streamlit run main.py`
 5. **Demo username and Password: **
    Username: admin
    Password: 123
