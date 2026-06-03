@@ -78,3 +78,30 @@ To conduct user acceptance testing (UAT) with the updated application prototype,
 
 - Stage the codebase changes in VS Code, execute final local verification test cases, and commit the feature branch up to GitHub.
 - Coordinate the final deployment review session.
+
+---
+
+### Meeting Log: Scope Expansion & Dynamic Notification Routing
+
+**Date:** June 3, 2026  
+**Participant:** Supervisor (Client / End-User)
+
+#### Purpose of the Meeting:
+
+To discuss a new operational requirement for processing real-time guest requests and map out the frontend inputs needed for the application.
+
+#### New Requirements Gathered:
+
+1. **Special Requests Integration:** The supervisor requested a new function to handle ad-hoc guest requirements that occur dynamically throughout the shift (e.g., delivering slippers, extra towels, or blankets).
+2. **Targeted SMS Dispatch:** The feature must allow the supervisor to select or input a specific room number, type out the custom guest requirement, and instantly route that custom text message straight to the assigned room attendant's mobile device.
+
+#### Technical & UI Architecture Plan:
+
+- **UI Input Fields:** Implement a dynamic text area component (`st.text_area` or `st.text_input`) in the Streamlit interface to capture free-form text for custom guest requirements.
+- **Data Validation & Logic Routing:** Code a verification check to ensure the custom message is not empty before submission, then reuse the existing Twilio API gateway logic to securely compile and transmit the specific text package string.
+
+#### Next Steps:
+
+- Add the new user interface elements in `VacNoti.py` to handle custom text inputs.
+- Update the conditional block to format the custom SMS string nicely (e.g., _"From Supervisor: Room [X] requires [Special Request], thank you."_).
+- Test the input text length validations to prevent empty or broken SMS dispatches.

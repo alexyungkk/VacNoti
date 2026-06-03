@@ -78,13 +78,15 @@ if run:
             json.dump(initial_data, f)
 
     # hotel_logic.schedule_rn(schedule)
-    mess_type = st.radio("Service Type", ["Check out", "Stayover"], horizontal=True) 
+    mess_type = st.radio("Service Type", ["Check out", "Stayover", "Other"], horizontal=True) 
     sms = st.checkbox("SMS send?")
+
     # st.info(mess_type)
     # using form function
     with st.form("notification"):
         room_number = st.text_input("Enter Room Number:", placeholder="room number")
-
+        if mess_type == "Other":
+            guest_requirement = st.text_input("Please Input the guest's requirement.")
         send = st.form_submit_button("Send")
         if send:
             try:
@@ -145,12 +147,39 @@ if run:
                                             else:
                                                 try: 
 
-                                                        success_mess = f"{currTime} STAYOVER notification  sent to {ra_name} {ra_number} for room {room_number}!"
-                                                        type_mess = "success"
-                                                        hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
-                                                        add_message(f"{currTime} STAYOVER notification sent to {ra_name} {ra_number} for room {room_number}!", "success")    
+                                                    success_mess = f"{currTime} STAYOVER notification  sent to {ra_name} {ra_number} for room {room_number}!"
+                                                    type_mess = "success"
+                                                    hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
+                                                    add_message(f"{currTime} STAYOVER notification sent to {ra_name} {ra_number} for room {room_number}!", "success")    
                                                 except Exception as e:
                                                     st.error(f"Failed to send SMS: {e}")
+
+                                        elif mess_type == "Other":
+                                            if not guest_requirement.strip():
+                                                st.error("please input the guest requirement.")
+                                            else:
+                                                if sms:
+                                                    try: 
+                                                        message = client.messages.create(
+                                                            from_=hotel_logic.twilio_number,
+                                                            body= f"From supervisor. Hi, room {room_number} {guest_requirement}, thank you",
+                                                            to=ra_number
+                                                        )
+                                                        success_mess = f"{currTime} '{guest_requirement}' sent to {ra_name} {ra_number} for room {room_number}!"
+                                                        type_mess = "success"
+                                                        hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
+                                                        add_message(f"{currTime} '{guest_requirement}' sent to {ra_name} {ra_number} for room {room_number}!", "success")    
+                                                    except Exception as e:
+                                                        st.error(f"Failed to send SMS: {e}")
+                                                else:
+                                                    try: 
+                                                        success_mess = f"{currTime} '{guest_requirement}' sent to {ra_name} {ra_number} for room {room_number}!"
+                                                        type_mess = "success"
+                                                        hotel_logic.update_json(success_mess, type_mess, "simple.json")                                      
+                                                        add_message(f"{currTime} '{guest_requirement}' sent to {ra_name} {ra_number} for room {room_number}!", "success")    
+                                                    except Exception as e:
+                                                        st.error(f"Failed to send SMS: {e}")
+
 
                         else:
                             error_mess = f"{currTime} Room {room_number} is assigned to more than one room attendants."
